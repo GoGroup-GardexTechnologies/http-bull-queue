@@ -1,10 +1,10 @@
 import { createClient } from 'redis';
-import sgMail from '@sendgrid/mail';
 import {
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASS,
-  SEND_GRID_API_KEY,
+  TURBO_SMTP_CONSUMER_KEY,
+  TURBO_SMTP_CONSUMER_SECRET,
   SMS_PORTAL_CLIENT_ID,
   SMS_PORTAL_API_KEY,
 } from '../globals';
@@ -30,11 +30,16 @@ redisConnection.connect().catch((err) => {
 });
 
 // ---------------------------------------------------------------------------
-// SendGrid
+// TurboSMTP
 // ---------------------------------------------------------------------------
 
-sgMail.setApiKey(SEND_GRID_API_KEY);
-export const sendgridClient = sgMail;
+export const turboSmtpHeaders = {
+  headers: {
+    'Content-Type': 'application/json',
+    consumerKey: TURBO_SMTP_CONSUMER_KEY,
+    consumerSecret: TURBO_SMTP_CONSUMER_SECRET,
+  },
+};
 
 // ---------------------------------------------------------------------------
 // SMS Portal

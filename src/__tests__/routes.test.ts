@@ -1,7 +1,7 @@
 // Mock heavy dependencies before any imports
 jest.mock('../config', () => ({
   redisConnection: { status: 'ready', quit: jest.fn() },
-  sendgridClient: { send: jest.fn() },
+  turboSmtpHeaders: { headers: {} },
   smsPortalRequestHeaders: { headers: {} },
 }));
 

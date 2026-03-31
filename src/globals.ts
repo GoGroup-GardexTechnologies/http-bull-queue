@@ -22,7 +22,8 @@ const REQUIRED_ENV: string[] = [
   'QUEUE_SECRET',
   'REDIS_HOST',
   'REDIS_PORT',
-  'SEND_GRID_API_KEY',
+  'TURBO_SMTP_CONSUMER_KEY',
+  'TURBO_SMTP_CONSUMER_SECRET',
   'SMS_PORTAL_CLIENT_ID',
   'SMS_PORTAL_API_KEY',
 ];
@@ -41,7 +42,8 @@ export const REDIS_HOST: string = process.env.REDIS_HOST!;
 export const REDIS_PORT: string = process.env.REDIS_PORT!;
 export const REDIS_PASS: string = process.env.REDIS_PASS || '';
 
-export const SEND_GRID_API_KEY: string = process.env.SEND_GRID_API_KEY!;
+export const TURBO_SMTP_CONSUMER_KEY: string = process.env.TURBO_SMTP_CONSUMER_KEY!;
+export const TURBO_SMTP_CONSUMER_SECRET: string = process.env.TURBO_SMTP_CONSUMER_SECRET!;
 export const VERIFIED_EMAIL: string = process.env.VERIFIED_EMAIL || 'noreply@ivdms.website';
 
 export const SMS_PORTAL_CLIENT_ID: string = process.env.SMS_PORTAL_CLIENT_ID!;

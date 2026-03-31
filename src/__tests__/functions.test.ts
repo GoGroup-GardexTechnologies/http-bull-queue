@@ -13,7 +13,8 @@ jest.mock('../globals', () => ({
   REDIS_HOST: 'localhost',
   REDIS_PORT: '6379',
   REDIS_PASS: '',
-  SEND_GRID_API_KEY: 'SG.test',
+  TURBO_SMTP_CONSUMER_KEY: 'test-consumer-key',
+  TURBO_SMTP_CONSUMER_SECRET: 'test-consumer-secret',
   SMS_PORTAL_CLIENT_ID: 'test-id',
   SMS_PORTAL_API_KEY: 'test-key',
   queue: {
@@ -22,7 +23,11 @@ jest.mock('../globals', () => ({
     trackProcessOutputDocumentForPenaltyFeesQueue: 'trackProcessOutputDocumentForPenaltyFeesQueue',
     trackProcessOutputDocumentExpiryQueue: 'trackProcessOutputDocumentExpiryQueue',
   },
-  SERVICE_URLS: { firebaseCloudFunctionUrl: '', smsPortalBaseUrl: '' },
+  SERVICE_URLS: {
+    trackProcessOutputDocumentExpiryUrl: '',
+    trackProcessOutputDocumentForPenaltyFeesUrl: '',
+    smsPortalBaseUrl: '',
+  },
 }));
 
 // ---------------------------------------------------------------------------

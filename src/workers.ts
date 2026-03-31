@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import axios from 'axios';
 import { stripHtml } from './functions';
-import { sendgridClient, smsPortalRequestHeaders } from './config';
+import { turboSmtpHeaders, smsPortalRequestHeaders } from './config';
 import {
   REDIS_HOST,
   REDIS_PORT,
@@ -32,13 +32,17 @@ emailWorker = new Worker(
       message: string;
     };
 
-    await sendgridClient.send({
-      to: email,
-      from: VERIFIED_EMAIL,
-      subject,
-      html: message,
-      text: stripHtml(message),
-    });
+    await axios.post(
+      'https://api.turbo-smtp.com/api/v2/mail/send',
+      {
+        from: VERIFIED_EMAIL,
+        to: email,
+        subject,
+        content: stripHtml(message),
+        html_content: message,
+      },
+      turboSmtpHeaders,
+    );
 
     console.log(`[emailWorker] Sent email to ${email}`);
   },

@@ -57,6 +57,7 @@ export const queue = {
 };
 
 export const SERVICE_URLS = {
-  firebaseCloudFunctionUrl: process.env.FIREBASE_CLOUD_FUNCTION_URL || '',
+  trackProcessOutputDocumentExpiryUrl: process.env.TRACK_PROCESS_OUTPUT_DOCUMENT_EXPIRY_URL || '',
+  trackProcessOutputDocumentForPenaltyFeesUrl: process.env.TRACK_PROCESS_OUTPUT_DOCUMENT_FOR_PENALTY_FEES_URL || '',
   smsPortalBaseUrl: process.env.SMS_PORTAL_BASE_URL || 'https://rest.smsportal.com/v1',
 };

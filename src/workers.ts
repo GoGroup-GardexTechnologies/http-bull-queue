@@ -92,10 +92,7 @@ trackProcessOutputDocumentExpiryWorker = new Worker(
   async (job: Job) => {
     const { id } = job.data as { id: string };
 
-    await axios.post(
-      SERVICE_URLS.firebaseCloudFunctionUrl,
-      { type: 'trackProcessOutputDocumentExpiry', id },
-    );
+    await axios.post(SERVICE_URLS.trackProcessOutputDocumentExpiryUrl, { id });
 
     console.log(`[trackProcessOutputDocumentExpiryWorker] Processed document ${id}`);
   },
@@ -117,10 +114,7 @@ trackProcessOutputDocumentForPenaltyFeesWorker = new Worker(
   async (job: Job) => {
     const { id } = job.data as { id: string };
 
-    await axios.post(
-      SERVICE_URLS.firebaseCloudFunctionUrl,
-      { type: 'trackProcessOutputDocumentForPenaltyFees', id },
-    );
+    await axios.post(SERVICE_URLS.trackProcessOutputDocumentForPenaltyFeesUrl, { id });
 
     console.log(`[trackProcessOutputDocumentForPenaltyFeesWorker] Processed document ${id}`);
   },

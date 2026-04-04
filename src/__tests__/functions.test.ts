@@ -113,4 +113,27 @@ describe('phoneValidation', () => {
     const { error } = schema.validate({ phone: '' });
     expect(error).toBeDefined();
   });
+
+  it('accepts ISO format with spaces in subscriber number and normalises to single space', () => {
+    const { error, value } = schema.validate({ phone: '+267 77 534 528' });
+    expect(error).toBeUndefined();
+    expect(value.phone).toBe('+267 77534528');
+  });
+
+  it('accepts already-normalised format unchanged', () => {
+    const { error, value } = schema.validate({ phone: '+267 77534528' });
+    expect(error).toBeUndefined();
+    expect(value.phone).toBe('+267 77534528');
+  });
+
+  it('accepts South Africa ISO format and normalises', () => {
+    const { error, value } = schema.validate({ phone: '+27 82 123 4567' });
+    expect(error).toBeUndefined();
+    expect(value.phone).toBe('+27 821234567');
+  });
+
+  it('rejects ISO format with an unrecognised country code', () => {
+    const { error } = schema.validate({ phone: '+999 12 345' });
+    expect(error).toBeDefined();
+  });
 });

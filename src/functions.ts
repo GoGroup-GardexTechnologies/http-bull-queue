@@ -31,13 +31,15 @@ export const mongoIdValidation = Joi.string()
 const validCodes = COUNTRY_PHONE_CODES.map((c) => c.code);
 
 export const phoneValidation = Joi.string()
-  .pattern(/^\+[0-9]+ [0-9]+$/)
+  .pattern(/^\+[0-9]+( [0-9]+)+$/)
   .custom((value, helpers) => {
     const match = value.match(/^\+([0-9]+) /);
     if (!match || !validCodes.includes(match[1])) {
       return helpers.error('phone.invalidCode');
     }
-    return value;
+    // Normalize: keep one space after country code, strip spaces within subscriber number
+    const firstSpace = value.indexOf(' ');
+    return value.slice(0, firstSpace + 1) + value.slice(firstSpace + 1).replace(/\s+/g, '');
   })
   .messages({
     'string.pattern.base': 'phone must be in +{countryCode} {number} format',

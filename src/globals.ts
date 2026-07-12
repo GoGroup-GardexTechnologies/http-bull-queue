@@ -1,4 +1,5 @@
 import { parsePhoneNumber, CountryCode } from 'libphonenumber-js';
+import logger from './logger';
 
 // ---------------------------------------------------------------------------
 // Country phone codes
@@ -30,7 +31,7 @@ const REQUIRED_ENV: string[] = [
 
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missing.length > 0) {
-  console.error(`[http-bull-queue] Missing required environment variables: ${missing.join(', ')}`);
+  logger.fatal({ missing }, 'Missing required environment variables');
   process.exit(1);
 }
 

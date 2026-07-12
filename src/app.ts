@@ -1,9 +1,14 @@
 import crypto from 'crypto';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import * as Joi from 'joi';
 import { StatusCodes } from 'http-status-codes';
+import client from 'prom-client';
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 import {
   emailQueue,
   smsQueue,
@@ -11,6 +16,7 @@ import {
   trackProcessOutputDocumentForPenaltyFeesQueue,
 } from './queue';
 import { mongoIdValidation, phoneValidation } from './functions';
+import logger from './logger';
 
 const app = express();
 
@@ -19,7 +25,17 @@ const app = express();
 // ---------------------------------------------------------------------------
 
 app.set('trust proxy', 1);
-app.use(cors());
+
+app.use(helmet({
+  contentSecurityPolicy: false, // not a browser-facing service
+}));
+
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+    : false,
+  credentials: true,
+}));
 app.use(express.json());
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500 });
@@ -93,6 +109,65 @@ export const p = {
   workerStatus: '/worker-status',
   forceProcess: '/force-process/:queueName',
 };
+
+// ---------------------------------------------------------------------------
+// Prometheus metrics
+// ---------------------------------------------------------------------------
+
+client.collectDefaultMetrics({ prefix: 'queue_' });
+
+const httpRequestDuration = new client.Histogram({
+  name: 'queue_http_request_duration_seconds',
+  help: 'HTTP request duration in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+});
+
+const httpRequestsTotal = new client.Counter({
+  name: 'queue_http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+});
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = (Date.now() - start) / 1000;
+    const route = req.route?.path || req.path || 'unknown';
+    httpRequestDuration.observe(
+      { method: req.method, route, status_code: String(res.statusCode) },
+      duration,
+    );
+    httpRequestsTotal.inc(
+      { method: req.method, route, status_code: String(res.statusCode) },
+    );
+  });
+  next();
+});
+
+app.get('/metrics', async (_req: Request, res: Response) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
+// ---------------------------------------------------------------------------
+// Bull Board — queue observability dashboard
+// ---------------------------------------------------------------------------
+
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath('/admin/queues');
+
+createBullBoard({
+  queues: [
+    new BullMQAdapter(emailQueue),
+    new BullMQAdapter(smsQueue),
+    new BullMQAdapter(trackProcessOutputDocumentExpiryQueue),
+    new BullMQAdapter(trackProcessOutputDocumentForPenaltyFeesQueue),
+  ],
+  serverAdapter,
+});
+
+app.use('/admin/queues', requireAdminSecret, serverAdapter.getRouter());
 
 // ---------------------------------------------------------------------------
 // Health

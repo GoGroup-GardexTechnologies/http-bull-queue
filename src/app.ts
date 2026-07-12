@@ -151,23 +151,25 @@ app.get('/metrics', async (_req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
-// Bull Board — queue observability dashboard
+// Bull Board — queue observability dashboard (disabled in tests)
 // ---------------------------------------------------------------------------
 
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
+if (process.env.NODE_ENV !== 'test') {
+  const serverAdapter = new ExpressAdapter();
+  serverAdapter.setBasePath('/admin/queues');
 
-createBullBoard({
-  queues: [
-    new BullMQAdapter(emailQueue),
-    new BullMQAdapter(smsQueue),
-    new BullMQAdapter(trackProcessOutputDocumentExpiryQueue),
-    new BullMQAdapter(trackProcessOutputDocumentForPenaltyFeesQueue),
-  ],
-  serverAdapter,
-});
+  createBullBoard({
+    queues: [
+      new BullMQAdapter(emailQueue),
+      new BullMQAdapter(smsQueue),
+      new BullMQAdapter(trackProcessOutputDocumentExpiryQueue),
+      new BullMQAdapter(trackProcessOutputDocumentForPenaltyFeesQueue),
+    ],
+    serverAdapter,
+  });
 
-app.use('/admin/queues', requireAdminSecret, serverAdapter.getRouter());
+  app.use('/admin/queues', requireAdminSecret, serverAdapter.getRouter());
+}
 
 // ---------------------------------------------------------------------------
 // Health

@@ -8,6 +8,7 @@ import {
   SMS_PORTAL_CLIENT_ID,
   SMS_PORTAL_API_KEY,
 } from '../globals';
+import logger from '../logger';
 
 // ---------------------------------------------------------------------------
 // Redis
@@ -22,11 +23,11 @@ export const redisConnection = createClient({
 });
 
 redisConnection.on('error', (err) => {
-  console.error('[Redis] Connection error:', err.message);
+  logger.error({ err: err.message }, 'Redis connection error');
 });
 
 redisConnection.connect().catch((err) => {
-  console.error('[Redis] Failed to connect:', err.message);
+  logger.error({ err: err.message }, 'Redis failed to connect');
 });
 
 // ---------------------------------------------------------------------------
